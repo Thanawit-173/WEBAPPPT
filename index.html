@@ -105,6 +105,7 @@
         const X = (props) => <IconBase {...props}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></IconBase>;
         const Check = (props) => <IconBase {...props}><polyline points="20 6 9 17 4 12"/></IconBase>;
         const Cloud = (props) => <IconBase {...props}><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></IconBase>;
+        const AlertCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></IconBase>;
 
         // --- 3. Custom Pixel Components ---
         const PixelCoin = ({ size = "w-12 h-12", className = "" }) => (
@@ -151,7 +152,358 @@
             );
         };
 
-        // --- 4. Main Application ---
+        // --- 4. Sub-Components ---
+        
+        const Header = ({ currentView, setCurrentView }) => (
+            <div className="bg-[#5c94fc] border-b-4 border-black p-4 sticky top-0 z-20 shadow-[0_4px_0_rgba(0,0,0,0.2)]">
+                <div className="max-w-5xl mx-auto flex items-center justify-between">
+                    <div 
+                        className="flex items-center gap-3 cursor-pointer group"
+                        onClick={() => setCurrentView('home')}
+                    >
+                        <div className="bg-yellow-400 p-1 border-2 border-black group-hover:scale-110 transition-transform">
+                            <PixelCoin size="w-8 h-8" />
+                        </div>
+                        <h1 className="font-pixel text-xl md:text-2xl text-white tracking-widest drop-shadow-[2px_2px_0_#000]">
+                            SATANG APP
+                        </h1>
+                    </div>
+                    
+                    {currentView !== 'home' && (
+                        <PixelButton 
+                            variant="neutral" 
+                            onClick={() => setCurrentView('home')}
+                            className="flex items-center gap-2 !py-1"
+                        >
+                            <ArrowLeft className="w-4 h-4" /> BACK
+                        </PixelButton>
+                    )}
+                </div>
+            </div>
+        );
+
+        const HomeView = ({ setCurrentView }) => (
+            <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 animate-fade-in py-12">
+                <div className="mb-8 relative group animate-bounce-slow">
+                    <PixelCoin size="w-32 h-32 md:w-48 md:h-48" className="drop-shadow-[8px_8px_0_rgba(0,0,0,0.5)]" />
+                </div>
+                
+                <h1 className="font-pixel text-4xl md:text-6xl text-center text-[#2d3748] mb-4 drop-shadow-[4px_4px_0_#fff]">
+                    SATANG WEB APP
+                </h1>
+                <p className="font-pixel text-slate-600 mb-12 text-center max-w-md text-lg bg-white border-2 border-black p-2 shadow-[4px_4px_0_rgba(0,0,0,0.2)]">
+                    INSERT COIN TO START CODING...
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-4">
+                    <div className="cursor-pointer group" onClick={() => setCurrentView('portfolio')}>
+                        <PixelCard color="bg-[#93bbec] group-hover:bg-[#7aaad6] transition-colors">
+                            <div className="flex items-center gap-4 mb-4 border-b-4 border-black pb-2">
+                                <div className="bg-white p-2 border-2 border-black">
+                                    <Briefcase className="w-8 h-8 text-blue-800" />
+                                </div>
+                                <h3 className="font-pixel text-2xl text-black">PORTFOLIO</h3>
+                            </div>
+                            <p className="font-pixel text-black leading-relaxed">
+                                [LEVEL 1]<br/>
+                                YOUR PROJECTS STORAGE.<br/>
+                                <span className="text-green-800 flex items-center gap-2 mt-2">
+                                    <Cloud className="w-4 h-4" /> CLOUD SAVE ON
+                                </span>
+                            </p>
+                        </PixelCard>
+                    </div>
+
+                    <div className="cursor-pointer group" onClick={() => setCurrentView('html-tester')}>
+                        <PixelCard color="bg-[#f6e05e] group-hover:bg-[#ecc94b] transition-colors">
+                            <div className="flex items-center gap-4 mb-4 border-b-4 border-black pb-2">
+                                <div className="bg-white p-2 border-2 border-black">
+                                    <Code className="w-8 h-8 text-orange-600" />
+                                </div>
+                                <h3 className="font-pixel text-2xl text-black">HTML TEST</h3>
+                            </div>
+                            <p className="font-pixel text-black leading-relaxed">
+                                [LEVEL 2]<br/>
+                                CODE SANDBOX AREA.<br/>
+                                LOCAL SAVE ONLY.
+                            </p>
+                        </PixelCard>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const PortfolioView = ({ 
+            projects, 
+            isLoadingProjects, 
+            isAdmin, 
+            handleLoginClick, 
+            showLogin, 
+            submitLogin, 
+            passwordInput, 
+            setPasswordInput, 
+            loginError,
+            isAdding,
+            setIsAdding,
+            newProjectTitle,
+            setNewProjectTitle,
+            newProjectImage,
+            setNewProjectImage,
+            newProjectLink,
+            setNewProjectLink,
+            newProjectDesc,
+            setNewProjectDesc,
+            handleAddProject,
+            handleDeleteClick,
+            deleteConfirmId
+        }) => (
+            <div className="max-w-5xl mx-auto px-4 py-8 animate-fade-in pb-24">
+                <PixelCard className="mb-8">
+                    <div className="flex flex-col md:flex-row justify-between items-end gap-4">
+                        <div>
+                            <h2 className="text-3xl font-pixel text-black flex items-center gap-3">
+                                <Briefcase className="text-blue-600" /> MY PROJECTS
+                            </h2>
+                            <p className="font-pixel text-slate-600 mt-2 flex items-center gap-2">
+                                STATUS: {isLoadingProjects ? 'LOADING...' : 'ONLINE'}
+                            </p>
+                        </div>
+                        
+                        <div className="flex gap-2 relative z-10">
+                            <div className="relative">
+                                <PixelButton 
+                                    variant={isAdmin ? "danger" : "neutral"}
+                                    onClick={handleLoginClick}
+                                    className="flex items-center gap-2"
+                                >
+                                    {isAdmin ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                                    {isAdmin ? "ADMIN" : "LOGIN"}
+                                </PixelButton>
+
+                                {showLogin && (
+                                    <div className="absolute right-0 top-14 w-72 z-30">
+                                        <PixelCard color="bg-white">
+                                            <form onSubmit={submitLogin}>
+                                                <label className="block font-pixel text-sm mb-2 text-black">PASSWORD:</label>
+                                                <div className="flex gap-2">
+                                                    <input 
+                                                        type="password" 
+                                                        value={passwordInput}
+                                                        onChange={(e) => setPasswordInput(e.target.value)}
+                                                        className="flex-1 border-2 border-black p-2 font-pixel text-sm outline-none focus:bg-yellow-50"
+                                                        placeholder="***"
+                                                        autoFocus
+                                                    />
+                                                    <button type="submit" className="bg-green-500 text-white px-2 border-2 border-black hover:bg-green-400">
+                                                        <Check className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                                {loginError && <p className="font-pixel text-red-600 text-xs mt-2 bg-red-100 p-1 border border-red-200">{loginError}</p>}
+                                            </form>
+                                        </PixelCard>
+                                    </div>
+                                )}
+                            </div>
+
+                            {isAdmin && (
+                                <PixelButton 
+                                    variant="success"
+                                    onClick={() => setIsAdding(!isAdding)}
+                                    className="flex items-center gap-2"
+                                >
+                                    {isAdding ? 'CANCEL' : <><Plus className="w-4 h-4" /> NEW</>}
+                                </PixelButton>
+                            )}
+                        </div>
+                    </div>
+                </PixelCard>
+
+                {isAdding && isAdmin && (
+                    <div className="mb-8 animate-slide-down">
+                        <PixelCard color="bg-[#e2e8f0]">
+                            <div className="flex justify-between items-center mb-4 border-b-4 border-slate-400 pb-2">
+                                <h3 className="font-pixel text-xl text-black">NEW QUEST (ADD PROJECT)</h3>
+                                <button onClick={() => setIsAdding(false)}><X className="w-6 h-6 hover:text-red-500" /></button>
+                            </div>
+                            
+                            <div className="space-y-4 font-pixel">
+                                <div>
+                                    <label className="block text-sm mb-1 uppercase">Quest Title *</label>
+                                    <input 
+                                        type="text" 
+                                        value={newProjectTitle}
+                                        onChange={(e) => setNewProjectTitle(e.target.value)}
+                                        className="w-full border-2 border-black p-2 outline-none focus:shadow-[2px_2px_0_#000]"
+                                        placeholder="PROJECT NAME..."
+                                        required
+                                    />
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm mb-1 uppercase flex items-center gap-2">
+                                            Image URL <span className="text-xs text-slate-500 normal-case">(แนะนำใช้ Direct Link)</span>
+                                        </label>
+                                        <input 
+                                            type="url" 
+                                            value={newProjectImage}
+                                            onChange={(e) => setNewProjectImage(e.target.value)}
+                                            className="w-full border-2 border-black p-2 outline-none focus:shadow-[2px_2px_0_#000]"
+                                            placeholder="https://..."
+                                        />
+                                        <p className="text-xs text-slate-500 mt-2 leading-relaxed bg-yellow-50 p-2 border border-yellow-200 rounded">
+                                            💡 <b>แนะนำ:</b> Google Drive อาจไม่แสดงรูปในบางครั้ง ให้ฝากรูปที่ <a href="https://postimages.org/" target="_blank" rel="noreferrer" className="text-blue-600 underline font-bold">PostImages</a> หรือ <a href="https://imgur.com/" target="_blank" rel="noreferrer" className="text-blue-600 underline font-bold">Imgur</a> แล้วนำช่อง <b>"Direct link"</b> มาใส่ รูปจะขึ้นแน่นอนครับ
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm mb-1 uppercase">Link URL</label>
+                                        <input 
+                                            type="url" 
+                                            value={newProjectLink}
+                                            onChange={(e) => setNewProjectLink(e.target.value)}
+                                            className="w-full border-2 border-black p-2 outline-none focus:shadow-[2px_2px_0_#000]"
+                                            placeholder="https://..."
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm mb-1 uppercase">Description</label>
+                                    <textarea 
+                                        rows="3"
+                                        value={newProjectDesc}
+                                        onChange={(e) => setNewProjectDesc(e.target.value)}
+                                        className="w-full border-2 border-black p-2 outline-none focus:shadow-[2px_2px_0_#000]"
+                                        placeholder="DETAILS..."
+                                    />
+                                </div>
+                                <PixelButton variant="primary" onClick={handleAddProject} className="w-full">
+                                    SAVE TO CLOUD
+                                </PixelButton>
+                            </div>
+                        </PixelCard>
+                    </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {isLoadingProjects ? (
+                        <div className="col-span-2 py-20 text-center">
+                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-4 border-t-4 border-black mb-4"></div>
+                            <p className="font-pixel text-xl">LOADING DATA...</p>
+                        </div>
+                    ) : projects.length === 0 ? (
+                        <div className="col-span-2 text-center py-16 bg-slate-100 border-4 border-dashed border-slate-300">
+                            <p className="font-pixel text-slate-400 text-xl">NO DATA FOUND.</p>
+                        </div>
+                    ) : (
+                        projects.map((project) => (
+                            <PixelCard key={project.id} className="h-full flex flex-col">
+                                {project.imageUrl && (
+                                    <div className="h-48 -mx-4 -mt-4 md:-mx-6 md:-mt-6 border-b-4 border-black mb-4 relative bg-slate-200 overflow-hidden group/img">
+                                        <img 
+                                            src={project.imageUrl} 
+                                            alt={project.title}
+                                            className="w-full h-full object-cover pixelated"
+                                            style={{ imageRendering: 'pixelated' }}
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = "https://placehold.co/600x400/e2e8f0/475569?text=Image+Error\n(Check+Link/Perms)";
+                                            }}
+                                        />
+                                        <div className="absolute top-0 right-0 bg-black text-white font-pixel text-xs px-2 py-1 border-b-2 border-l-2 border-white">
+                                            {project.date}
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <div className="flex-1 flex flex-col">
+                                    <div className="flex justify-between items-start mb-3">
+                                        {!project.imageUrl && (
+                                            <span className="font-pixel text-xs bg-slate-200 border-2 border-black px-2 py-1">{project.date}</span>
+                                        )}
+                                        
+                                        {/* ปุ่มลบ (แสดงเฉพาะ Admin) */}
+                                        {isAdmin && (
+                                            <button 
+                                                onClick={() => handleDeleteClick(project.id)}
+                                                className={`ml-auto flex items-center gap-1 font-pixel text-xs px-2 py-1 border-2 border-transparent hover:border-black transition-all ${
+                                                    deleteConfirmId === project.id 
+                                                    ? 'bg-red-500 text-white' 
+                                                    : 'text-slate-400 hover:text-red-500'
+                                                }`}
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                                {deleteConfirmId === project.id ? 'CONFIRM DELETE?' : 'DELETE'}
+                                            </button>
+                                        )}
+                                    </div>
+                                    
+                                    <h3 className="font-pixel text-xl text-black mb-2 uppercase leading-snug">{project.title}</h3>
+                                    <p className="font-pixel text-slate-600 text-sm mb-6 flex-1 line-clamp-4 leading-relaxed tracking-wide">
+                                        {project.description}
+                                    </p>
+                                    
+                                    {project.linkUrl && (
+                                        <a 
+                                            href={project.linkUrl} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="mt-auto block"
+                                        >
+                                            <PixelButton variant="primary" className="w-full flex items-center justify-center gap-2">
+                                                VISIT LINK <ExternalLink className="w-4 h-4" />
+                                            </PixelButton>
+                                        </a>
+                                    )}
+                                </div>
+                            </PixelCard>
+                        ))
+                    )}
+                </div>
+            </div>
+        );
+
+        const HtmlTesterView = ({ htmlCode, setHtmlCode }) => (
+            <div className="h-[calc(100vh-80px)] flex flex-col animate-fade-in">
+                <div className="px-4 py-3 bg-[#f6e05e] border-b-4 border-black flex justify-between items-center">
+                    <h2 className="font-pixel text-black flex items-center gap-2">
+                        <Code className="w-5 h-5" /> HTML PLAYGROUND
+                    </h2>
+                    <div className="font-pixel text-xs text-black bg-white px-2 py-1 border-2 border-black">
+                        AUTO-SAVE: ON
+                    </div>
+                </div>
+                
+                <div className="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+                    <div className="flex-1 border-r-4 border-black flex flex-col bg-[#2d3748]">
+                        <div className="bg-black px-4 py-2 text-xs text-green-400 font-pixel border-b-2 border-slate-700 flex justify-between">
+                            <span>INPUT: HTML/CSS</span>
+                            <span>EDITOR</span>
+                        </div>
+                        <textarea 
+                            value={htmlCode}
+                            onChange={(e) => setHtmlCode(e.target.value)}
+                            className="flex-1 w-full p-4 bg-[#2d3748] text-white font-mono text-sm outline-none resize-none"
+                            spellCheck="false"
+                            placeholder="TYPE CODE HERE..."
+                        />
+                    </div>
+                    <div className="flex-1 bg-white flex flex-col">
+                        <div className="bg-slate-200 px-4 py-2 text-xs text-black font-pixel border-b-4 border-black">
+                            PREVIEW OUTPUT
+                        </div>
+                        <iframe 
+                            srcDoc={htmlCode}
+                            title="preview"
+                            className="w-full h-full border-none bg-white"
+                            sandbox="allow-scripts"
+                        />
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- 5. Main Application Logic ---
         const SatangWebApp = () => {
             const [currentView, setCurrentView] = useState('home');
             const [user, setUser] = useState(null);
@@ -166,61 +518,6 @@
             const [projects, setProjects] = useState([]);
             const [isLoadingProjects, setIsLoadingProjects] = useState(true);
 
-            // Authentication Logic
-            useEffect(() => {
-                const initAuth = async () => {
-                    try {
-                        // เช็คว่ามี Token พิเศษสำหรับ Preview ไหม
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await auth.signInWithCustomToken(__initial_auth_token);
-                        } else {
-                            // ถ้าไม่มี (เช่นบน GitHub) ให้ใช้ Anonymous Login
-                            await auth.signInAnonymously();
-                        }
-                    } catch (error) {
-                        console.error("Auth Error:", error);
-                    }
-                };
-                initAuth();
-
-                const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-                    setUser(currentUser);
-                });
-                return () => unsubscribe();
-            }, []);
-
-            // Data Logic
-            useEffect(() => {
-                if (!user) return;
-                
-                // ใช้ collection path แบบเต็ม เพื่อความเข้ากันได้
-                // สำหรับ GitHub: ใช้ 'public_projects' (root collection) หรือตามที่คุณตั้งค่า Rules ไว้
-                // สำหรับ Preview นี้: ใช้ structure ของระบบ
-                
-                let projectsRef;
-                if (typeof __app_id !== 'undefined') {
-                     // Preview Environment
-                     projectsRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('projects');
-                } else {
-                     // GitHub / Production
-                     projectsRef = db.collection('public_projects');
-                }
-                
-                const unsubscribe = projectsRef.onSnapshot((snapshot) => {
-                    const loadedProjects = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    loadedProjects.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-                    setProjects(loadedProjects);
-                    setIsLoadingProjects(false);
-                }, (error) => {
-                    console.error("Data Fetch Error:", error);
-                    setIsLoadingProjects(false);
-                });
-                return () => unsubscribe();
-            }, [user]);
-            
             // State Form
             const [newProjectTitle, setNewProjectTitle] = useState('');
             const [newProjectDesc, setNewProjectDesc] = useState('');
@@ -241,11 +538,54 @@
 </div>`;
             });
 
+            // Effects
+            useEffect(() => {
+                const initAuth = async () => {
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await auth.signInWithCustomToken(__initial_auth_token);
+                        } else {
+                            await auth.signInAnonymously();
+                        }
+                    } catch (error) {
+                        console.error("Auth Error:", error);
+                    }
+                };
+                initAuth();
+                const unsubscribe = auth.onAuthStateChanged(setUser);
+                return () => unsubscribe();
+            }, []);
+
+            useEffect(() => {
+                if (!user) return;
+                
+                let projectsRef;
+                if (typeof __app_id !== 'undefined') {
+                     projectsRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('projects');
+                } else {
+                     projectsRef = db.collection('public_projects');
+                }
+                
+                const unsubscribe = projectsRef.onSnapshot((snapshot) => {
+                    const loadedProjects = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    loadedProjects.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                    setProjects(loadedProjects);
+                    setIsLoadingProjects(false);
+                }, (error) => {
+                    console.error("Data Fetch Error:", error);
+                    setIsLoadingProjects(false);
+                });
+                return () => unsubscribe();
+            }, [user]);
+
             useEffect(() => {
                 localStorage.setItem('satang_html_code', htmlCode);
             }, [htmlCode]);
 
-            // Admin Logic
+            // Handlers
             const handleLoginClick = () => {
                 if (isAdmin) {
                     setIsAdmin(false);
@@ -273,12 +613,23 @@
 
             const convertGoogleDriveLink = (url) => {
                 if (!url) return '';
+                
+                // Case 1: /file/d/ID/view
                 if (url.includes('drive.google.com') && url.includes('/file/d/')) {
                     const idMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
                     if (idMatch && idMatch[1]) {
                         return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
                     }
                 }
+                
+                // Case 2: /open?id=ID
+                if (url.includes('drive.google.com') && url.includes('id=')) {
+                    const idMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
+                    if (idMatch && idMatch[1]) {
+                        return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+                    }
+                }
+                
                 return url;
             };
 
@@ -337,331 +688,43 @@
                 }
             };
 
-            // --- UI Components ---
-            const Header = () => (
-                <div className="bg-[#5c94fc] border-b-4 border-black p-4 sticky top-0 z-20 shadow-[0_4px_0_rgba(0,0,0,0.2)]">
-                    <div className="max-w-5xl mx-auto flex items-center justify-between">
-                        <div 
-                            className="flex items-center gap-3 cursor-pointer group"
-                            onClick={() => setCurrentView('home')}
-                        >
-                            <div className="bg-yellow-400 p-1 border-2 border-black group-hover:scale-110 transition-transform">
-                                <PixelCoin size="w-8 h-8" />
-                            </div>
-                            <h1 className="font-pixel text-xl md:text-2xl text-white tracking-widest drop-shadow-[2px_2px_0_#000]">
-                                SATANG APP
-                            </h1>
-                        </div>
-                        
-                        {currentView !== 'home' && (
-                            <PixelButton 
-                                variant="neutral" 
-                                onClick={() => setCurrentView('home')}
-                                className="flex items-center gap-2 !py-1"
-                            >
-                                <ArrowLeft className="w-4 h-4" /> BACK
-                            </PixelButton>
-                        )}
-                    </div>
-                </div>
-            );
-
-            const HomeView = () => (
-                <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 animate-fade-in py-12">
-                    <div className="mb-8 relative group animate-bounce-slow">
-                        <PixelCoin size="w-32 h-32 md:w-48 md:h-48" className="drop-shadow-[8px_8px_0_rgba(0,0,0,0.5)]" />
-                    </div>
-                    
-                    <h1 className="font-pixel text-4xl md:text-6xl text-center text-[#2d3748] mb-4 drop-shadow-[4px_4px_0_#fff]">
-                        SATANG WEB APP
-                    </h1>
-                    <p className="font-pixel text-slate-600 mb-12 text-center max-w-md text-lg bg-white border-2 border-black p-2 shadow-[4px_4px_0_rgba(0,0,0,0.2)]">
-                        INSERT COIN TO START CODING...
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-4">
-                        <div className="cursor-pointer group" onClick={() => setCurrentView('portfolio')}>
-                            <PixelCard color="bg-[#93bbec] group-hover:bg-[#7aaad6] transition-colors">
-                                <div className="flex items-center gap-4 mb-4 border-b-4 border-black pb-2">
-                                    <div className="bg-white p-2 border-2 border-black">
-                                        <Briefcase className="w-8 h-8 text-blue-800" />
-                                    </div>
-                                    <h3 className="font-pixel text-2xl text-black">PORTFOLIO</h3>
-                                </div>
-                                <p className="font-pixel text-black leading-relaxed">
-                                    [LEVEL 1]<br/>
-                                    YOUR PROJECTS STORAGE.<br/>
-                                    <span className="text-green-800 flex items-center gap-2 mt-2">
-                                        <Cloud className="w-4 h-4" /> CLOUD SAVE ON
-                                    </span>
-                                </p>
-                            </PixelCard>
-                        </div>
-
-                        <div className="cursor-pointer group" onClick={() => setCurrentView('html-tester')}>
-                            <PixelCard color="bg-[#f6e05e] group-hover:bg-[#ecc94b] transition-colors">
-                                <div className="flex items-center gap-4 mb-4 border-b-4 border-black pb-2">
-                                    <div className="bg-white p-2 border-2 border-black">
-                                        <Code className="w-8 h-8 text-orange-600" />
-                                    </div>
-                                    <h3 className="font-pixel text-2xl text-black">HTML TEST</h3>
-                                </div>
-                                <p className="font-pixel text-black leading-relaxed">
-                                    [LEVEL 2]<br/>
-                                    CODE SANDBOX AREA.<br/>
-                                    LOCAL SAVE ONLY.
-                                </p>
-                            </PixelCard>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const PortfolioView = () => (
-                <div className="max-w-5xl mx-auto px-4 py-8 animate-fade-in pb-24">
-                    <PixelCard className="mb-8">
-                        <div className="flex flex-col md:flex-row justify-between items-end gap-4">
-                            <div>
-                                <h2 className="text-3xl font-pixel text-black flex items-center gap-3">
-                                    <Briefcase className="text-blue-600" /> MY PROJECTS
-                                </h2>
-                                <p className="font-pixel text-slate-600 mt-2 flex items-center gap-2">
-                                    STATUS: {isLoadingProjects ? 'LOADING...' : 'ONLINE'}
-                                </p>
-                            </div>
-                            
-                            <div className="flex gap-2 relative z-10">
-                                <div className="relative">
-                                    <PixelButton 
-                                        variant={isAdmin ? "danger" : "neutral"}
-                                        onClick={handleLoginClick}
-                                        className="flex items-center gap-2"
-                                    >
-                                        {isAdmin ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                                        {isAdmin ? "ADMIN" : "LOGIN"}
-                                    </PixelButton>
-
-                                    {showLogin && (
-                                        <div className="absolute right-0 top-14 w-72 z-30">
-                                            <PixelCard color="bg-white">
-                                                <form onSubmit={submitLogin}>
-                                                    <label className="block font-pixel text-sm mb-2 text-black">PASSWORD:</label>
-                                                    <div className="flex gap-2">
-                                                        <input 
-                                                            type="password" 
-                                                            value={passwordInput}
-                                                            onChange={(e) => setPasswordInput(e.target.value)}
-                                                            className="flex-1 border-2 border-black p-2 font-pixel text-sm outline-none focus:bg-yellow-50"
-                                                            placeholder="***"
-                                                            autoFocus
-                                                        />
-                                                        <button type="submit" className="bg-green-500 text-white px-2 border-2 border-black hover:bg-green-400">
-                                                            <Check className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                    {loginError && <p className="font-pixel text-red-600 text-xs mt-2 bg-red-100 p-1 border border-red-200">{loginError}</p>}
-                                                </form>
-                                            </PixelCard>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {isAdmin && (
-                                    <PixelButton 
-                                        variant="success"
-                                        onClick={() => setIsAdding(!isAdding)}
-                                        className="flex items-center gap-2"
-                                    >
-                                        {isAdding ? 'CANCEL' : <><Plus className="w-4 h-4" /> NEW</>}
-                                    </PixelButton>
-                                )}
-                            </div>
-                        </div>
-                    </PixelCard>
-
-                    {isAdding && isAdmin && (
-                        <div className="mb-8 animate-slide-down">
-                            <PixelCard color="bg-[#e2e8f0]">
-                                <div className="flex justify-between items-center mb-4 border-b-4 border-slate-400 pb-2">
-                                    <h3 className="font-pixel text-xl text-black">NEW QUEST (ADD PROJECT)</h3>
-                                    <button onClick={() => setIsAdding(false)}><X className="w-6 h-6 hover:text-red-500" /></button>
-                                </div>
-                                
-                                <div className="space-y-4 font-pixel">
-                                    <div>
-                                        <label className="block text-sm mb-1 uppercase">Quest Title *</label>
-                                        <input 
-                                            type="text" 
-                                            value={newProjectTitle}
-                                            onChange={(e) => setNewProjectTitle(e.target.value)}
-                                            className="w-full border-2 border-black p-2 outline-none focus:shadow-[2px_2px_0_#000]"
-                                            placeholder="PROJECT NAME..."
-                                            required
-                                        />
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm mb-1 uppercase">Image URL (Drive OK)</label>
-                                            <input 
-                                                type="url" 
-                                                value={newProjectImage}
-                                                onChange={(e) => setNewProjectImage(e.target.value)}
-                                                className="w-full border-2 border-black p-2 outline-none focus:shadow-[2px_2px_0_#000]"
-                                                placeholder="HTTP://..."
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm mb-1 uppercase">Link URL</label>
-                                            <input 
-                                                type="url" 
-                                                value={newProjectLink}
-                                                onChange={(e) => setNewProjectLink(e.target.value)}
-                                                className="w-full border-2 border-black p-2 outline-none focus:shadow-[2px_2px_0_#000]"
-                                                placeholder="HTTP://..."
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm mb-1 uppercase">Description</label>
-                                        <textarea 
-                                            rows="3"
-                                            value={newProjectDesc}
-                                            onChange={(e) => setNewProjectDesc(e.target.value)}
-                                            className="w-full border-2 border-black p-2 outline-none focus:shadow-[2px_2px_0_#000]"
-                                            placeholder="DETAILS..."
-                                        />
-                                    </div>
-                                    <PixelButton variant="primary" onClick={handleAddProject} className="w-full">
-                                        SAVE TO CLOUD
-                                    </PixelButton>
-                                </div>
-                            </PixelCard>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {isLoadingProjects ? (
-                            <div className="col-span-2 py-20 text-center">
-                                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-4 border-t-4 border-black mb-4"></div>
-                                <p className="font-pixel text-xl">LOADING DATA...</p>
-                            </div>
-                        ) : projects.length === 0 ? (
-                            <div className="col-span-2 text-center py-16 bg-slate-100 border-4 border-dashed border-slate-300">
-                                <p className="font-pixel text-slate-400 text-xl">NO DATA FOUND.</p>
-                            </div>
-                        ) : (
-                            projects.map((project) => (
-                                <PixelCard key={project.id} className="h-full flex flex-col">
-                                    {project.imageUrl && (
-                                        <div className="h-48 -mx-4 -mt-4 md:-mx-6 md:-mt-6 border-b-4 border-black mb-4 relative bg-slate-200 overflow-hidden">
-                                            <img 
-                                                src={project.imageUrl} 
-                                                alt={project.title}
-                                                className="w-full h-full object-cover pixelated"
-                                                style={{ imageRendering: 'pixelated' }}
-                                                onError={(e) => e.target.style.display='none'}
-                                            />
-                                            <div className="absolute top-0 right-0 bg-black text-white font-pixel text-xs px-2 py-1 border-b-2 border-l-2 border-white">
-                                                {project.date}
-                                            </div>
-                                        </div>
-                                    )}
-                                    
-                                    <div className="flex-1 flex flex-col">
-                                        <div className="flex justify-between items-start mb-3">
-                                            {!project.imageUrl && (
-                                                <span className="font-pixel text-xs bg-slate-200 border-2 border-black px-2 py-1">{project.date}</span>
-                                            )}
-                                            
-                                            {isAdmin && (
-                                                <button 
-                                                    onClick={() => handleDeleteClick(project.id)}
-                                                    className={`ml-auto flex items-center gap-1 font-pixel text-xs px-2 py-1 border-2 border-transparent hover:border-black transition-all ${
-                                                        deleteConfirmId === project.id 
-                                                        ? 'bg-red-500 text-white' 
-                                                        : 'text-slate-400 hover:text-red-500'
-                                                    }`}
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                    {deleteConfirmId === project.id ? 'CONFIRM?' : ''}
-                                                </button>
-                                            )}
-                                        </div>
-                                        
-                                        <h3 className="font-pixel text-xl text-black mb-2 uppercase leading-snug">{project.title}</h3>
-                                        <p className="font-pixel text-slate-600 text-sm mb-6 flex-1 line-clamp-4 leading-relaxed tracking-wide">
-                                            {project.description}
-                                        </p>
-                                        
-                                        {project.linkUrl && (
-                                            <a 
-                                                href={project.linkUrl} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="mt-auto block"
-                                            >
-                                                <PixelButton variant="primary" className="w-full flex items-center justify-center gap-2">
-                                                    VISIT LINK <ExternalLink className="w-4 h-4" />
-                                                </PixelButton>
-                                            </a>
-                                        )}
-                                    </div>
-                                </PixelCard>
-                            ))
-                        )}
-                    </div>
-                </div>
-            );
-
-            const HtmlTesterView = () => (
-                <div className="h-[calc(100vh-80px)] flex flex-col animate-fade-in">
-                    <div className="px-4 py-3 bg-[#f6e05e] border-b-4 border-black flex justify-between items-center">
-                        <h2 className="font-pixel text-black flex items-center gap-2">
-                            <Code className="w-5 h-5" /> HTML PLAYGROUND
-                        </h2>
-                        <div className="font-pixel text-xs text-black bg-white px-2 py-1 border-2 border-black">
-                            AUTO-SAVE: ON
-                        </div>
-                    </div>
-                    
-                    <div className="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
-                        <div className="flex-1 border-r-4 border-black flex flex-col bg-[#2d3748]">
-                            <div className="bg-black px-4 py-2 text-xs text-green-400 font-pixel border-b-2 border-slate-700 flex justify-between">
-                                <span>INPUT: HTML/CSS</span>
-                                <span>EDITOR</span>
-                            </div>
-                            <textarea 
-                                value={htmlCode}
-                                onChange={(e) => setHtmlCode(e.target.value)}
-                                className="flex-1 w-full p-4 bg-[#2d3748] text-white font-mono text-sm outline-none resize-none"
-                                spellCheck="false"
-                                placeholder="TYPE CODE HERE..."
-                            />
-                        </div>
-                        <div className="flex-1 bg-white flex flex-col">
-                            <div className="bg-slate-200 px-4 py-2 text-xs text-black font-pixel border-b-4 border-black">
-                                PREVIEW OUTPUT
-                            </div>
-                            <iframe 
-                                srcDoc={htmlCode}
-                                title="preview"
-                                className="w-full h-full border-none bg-white"
-                                sandbox="allow-scripts"
-                            />
-                        </div>
-                    </div>
-                </div>
-            );
-
+            // Render
             return (
                 <div className="min-h-screen bg-[#fffbe6] font-sans selection:bg-pink-300">
-                    <Header />
+                    <Header currentView={currentView} setCurrentView={setCurrentView} />
                     <main className="pb-8">
-                        {currentView === 'home' && <HomeView />}
-                        {currentView === 'portfolio' && <PortfolioView />}
-                        {currentView === 'html-tester' && <HtmlTesterView />}
+                        {currentView === 'home' && <HomeView setCurrentView={setCurrentView} />}
+                        
+                        {currentView === 'portfolio' && (
+                            <PortfolioView 
+                                projects={projects}
+                                isLoadingProjects={isLoadingProjects}
+                                isAdmin={isAdmin}
+                                handleLoginClick={handleLoginClick}
+                                showLogin={showLogin}
+                                submitLogin={submitLogin}
+                                passwordInput={passwordInput}
+                                setPasswordInput={setPasswordInput}
+                                loginError={loginError}
+                                isAdding={isAdding}
+                                setIsAdding={setIsAdding}
+                                newProjectTitle={newProjectTitle}
+                                setNewProjectTitle={setNewProjectTitle}
+                                newProjectImage={newProjectImage}
+                                setNewProjectImage={setNewProjectImage}
+                                newProjectLink={newProjectLink}
+                                setNewProjectLink={setNewProjectLink}
+                                newProjectDesc={newProjectDesc}
+                                setNewProjectDesc={setNewProjectDesc}
+                                handleAddProject={handleAddProject}
+                                handleDeleteClick={handleDeleteClick}
+                                deleteConfirmId={deleteConfirmId}
+                            />
+                        )}
+                        
+                        {currentView === 'html-tester' && (
+                            <HtmlTesterView htmlCode={htmlCode} setHtmlCode={setHtmlCode} />
+                        )}
                     </main>
                     
                     <footer className="text-center py-6 text-black/50 text-sm mt-auto border-t-4 border-black bg-[#e2e8f0] font-pixel">
